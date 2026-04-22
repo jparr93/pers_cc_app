@@ -190,6 +190,17 @@ body.dark-mode .control-group input {
   color: var(--text-light);
 }
 
+.control-group input[type="file"] {
+  padding: 0.5rem;
+}
+
+.control-group small {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
 .button-group {
   display: flex;
   gap: 1rem;

@@ -15,6 +15,7 @@ function getApiUrl() {
 
 // DOM Elements
 const dateInput = document.getElementById('dateInput');
+const csvInput = document.getElementById('csvInput');
 const generateBtn = document.getElementById('generateBtn');
 const resetBtn = document.getElementById('resetBtn');
 const exportBtn = document.getElementById('exportBtn');
@@ -62,8 +63,15 @@ async function fetchPairings(date) {
 
 async function generatePairings() {
   const date = dateInput.value;
+  const csvFile = csvInput.files[0];
+
   if (!date) {
     showNotification('Please select a date', 'warning');
+    return;
+  }
+
+  if (!csvFile) {
+    showNotification('Please upload a CSV file', 'warning');
     return;
   }
 
@@ -71,15 +79,18 @@ async function generatePairings() {
     generateBtn.disabled = true;
     generateBtn.textContent = 'Generating...';
 
-    // For demo, use the sample file path
+    const formData = new FormData();
+    formData.append('file', csvFile);
+    formData.append('runDate', date);
+
     const response = await fetch(`${API_BASE_URL}/pairings/generate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        csvPath: './examples/sample_participants.csv',
-        runDate: date,
-      }),
+      body: formData,
     });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
 
     const data = await response.json();
     showNotification(`Generated ${data.count} pairings`, 'success');
@@ -88,7 +99,7 @@ async function generatePairings() {
     copyBtn.disabled = false;
   } catch (error) {
     console.error('Error generating pairings:', error);
-    showNotification('Error generating pairings', 'error');
+    showNotification('Error generating pairings: ' + error.message, 'error');
   } finally {
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Pairings';

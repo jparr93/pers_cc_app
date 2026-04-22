@@ -1,18 +1,21 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import multer from 'multer';
 import { TableClient } from '@azure/data-tables';
 import { DefaultAzureCredential } from '@azure/identity';
 import { PairingService } from './services/pairingService.js';
-import { parseCsvFile } from './utils/csvParser.js';
+import { parseCsvString } from './utils/csvParser.js';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Initialize Azure Table Storage
 let tableClient: any;
@@ -46,13 +49,31 @@ app.get('/api/pairings', async (req: Request, res: Response) => {
 });
 
 // Generate new pairings
-app.post('/api/pairings/generate', async (req: Request, res: Response) => {
+app.post('/api/pairings/generate', upload.single('file'), async (req: Request, res: Response) => {
   try {
-    const { csvPath, runDate } = req.body;
-    const participants = await parseCsvFile(csvPath);
+    if (!req.file) {
+      res.status(400).json({ error: 'CSV file is required' });
+      return;
+    }
+
+    const { runDate } = req.body;
+    if (!runDate) {
+      res.status(400).json({ error: 'runDate is required' });
+      return;
+    }
+
+    const csvContent = req.file.buffer.toString('utf-8');
+    const participants = await parseCsvString(csvContent);
+
+    if (participants.length === 0) {
+      res.status(400).json({ error: 'CSV file is empty or invalid' });
+      return;
+    }
+
     const newPairings = await pairingService.generatePairings(participants, runDate);
     res.json({ pairings: newPairings, count: newPairings.length });
   } catch (error) {
+    console.error('Error generating pairings:', error);
     res.status(500).json({ error: 'Failed to generate pairings' });
   }
 });
