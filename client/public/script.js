@@ -1,21 +1,5 @@
-// Configuration
-const API_BASE_URL = getApiUrl();
-
-function getApiUrl() {
-  const hostname = window.location.hostname;
-  
-  // Production - if on Azure, construct full API URL
-  if (hostname.includes('azurewebsites.net')) {
-    // Remove .scm subdomain if present (used for deployments)
-    const cleanHostname = hostname.replace('.scm.', '.');
-    // Replace 'fe' with 'api' 
-    const apiHostname = cleanHostname.replace('-fe-', '-api-');
-    return `https://${apiHostname}/api`;
-  }
-  
-  // Development - use relative URL
-  return '/api';
-}
+// Configuration - API_URL is injected by server.js
+const API_BASE_URL = window.API_URL || 'https://app-cc-api-wcus-001.azurewebsites.net/api';
 
 // DOM Elements
 const dateInput = document.getElementById('dateInput');
