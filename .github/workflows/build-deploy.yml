@@ -1,0 +1,122 @@
+name: Build and Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    
+    strategy:
+      matrix:
+        node-version: [24.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Install root dependencies
+        run: npm install
+      
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm install
+      
+      - name: Build server
+        working-directory: ./server
+        run: npm run build
+      
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm install
+      
+      - name: Build client
+        working-directory: ./client
+        run: npm run build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+          retention-days: 7
+
+  deploy-api:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./deploy-api
+      
+      - name: Create API deployment package
+        run: |
+          cd ./deploy-api
+          mkdir -p api-deploy
+          cp -r server/dist/* api-deploy/ 2>/dev/null || true
+          cp -r server/node_modules api-deploy/ 2>/dev/null || true
+          cp server/package.json api-deploy/ 2>/dev/null || true
+          cd api-deploy
+          zip -r ../api-app.zip . -x ".git/*" ".gitignore" "server/src/*" ".env*" "*.md" "client/*"
+          ls -lah ../api-app.zip
+      
+      - name: Deploy API to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "app-cc-api-wcus-001"
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_API }}
+          package: ./deploy-api/api-app.zip
+
+  deploy-frontend:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./deploy-frontend
+      
+      - name: Create frontend deployment package
+        run: |
+          cd ./deploy-frontend
+          mkdir -p frontend-deploy
+          cp -r client/public/* frontend-deploy/ 2>/dev/null || true
+          cd frontend-deploy
+          zip -r ../frontend-app.zip . -x ".git/*" ".gitignore" "client/src/*" ".env*" "*.md" "server/*"
+          ls -lah ../frontend-app.zip
+      
+      - name: Deploy Frontend to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "app-cc-fe-wcus-001"
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FE }}
+          package: ./deploy-frontend/frontend-app.zip

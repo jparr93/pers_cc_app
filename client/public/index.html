@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pairing Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Coffee Chat Pairing Generator</h1>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Exhaustion Status -->
+            <section class="exhaustion-section">
+                <div class="exhaustion-card">
+                    <h2>Pairing Exhaustion</h2>
+                    <div class="exhaustion-meter">
+                        <div class="exhaustion-bar" id="exhaustionBar"></div>
+                    </div>
+                    <p class="exhaustion-text" id="exhaustionText">Loading...</p>
+                </div>
+            </section>
+
+            <!-- Controls -->
+            <section class="controls-section">
+                <div class="control-group">
+                    <label for="dateInput">Select Date:</label>
+                    <input type="date" id="dateInput" />
+                </div>
+                <div class="button-group">
+                    <button id="generateBtn" class="btn btn-primary">Generate Pairings</button>
+                    <button id="resetBtn" class="btn btn-danger">Reset All Pairings</button>
+                    <button id="exportBtn" class="btn btn-secondary" disabled>Export as CSV</button>
+                    <button id="copyBtn" class="btn btn-secondary" disabled>Copy to Clipboard</button>
+                </div>
+            </section>
+
+            <!-- Pairings Display -->
+            <section class="pairings-section">
+                <h2>Current Pairings</h2>
+                <div id="pairingsContainer" class="pairings-grid">
+                    <p class="empty-state">No pairings generated yet. Select a date and click "Generate Pairings".</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Pairing Generator | Designed for distributed teams</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

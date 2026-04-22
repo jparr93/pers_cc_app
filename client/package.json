@@ -1,0 +1,12 @@
+{
+  "name": "pairing-app-client",
+  "version": "1.0.0",
+  "description": "Frontend for pairing app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Client build complete'",
+    "start": "echo 'Client development server'"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "pairing-app",
+  "version": "1.0.0",
+  "description": "User pairing generation application",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "start": "npm start --workspace=server"
+  }
+}
