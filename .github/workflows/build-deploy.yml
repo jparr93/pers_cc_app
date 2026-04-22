@@ -109,7 +109,11 @@ jobs:
         run: |
           cd ./deploy-frontend
           mkdir -p frontend-deploy
-          cp -r client/public/* frontend-deploy/ 2>/dev/null || true
+          cp client/server.js frontend-deploy/ 2>/dev/null || true
+          cp client/package.json frontend-deploy/ 2>/dev/null || true
+          cp client/package-lock.json frontend-deploy/ 2>/dev/null || true
+          cp -r client/public frontend-deploy/ 2>/dev/null || true
+          cp -r client/node_modules frontend-deploy/ 2>/dev/null || true
           cd frontend-deploy
           zip -r ../frontend-app.zip . -x ".git/*" ".gitignore" "client/src/*" ".env*" "*.md" "server/*"
           ls -lah ../frontend-app.zip

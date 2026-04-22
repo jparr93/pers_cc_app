@@ -1,5 +1,17 @@
 // Configuration
-const API_BASE_URL = process.env.API_URL || '/api';
+const API_BASE_URL = process.env.API_URL || getApiUrl();
+
+function getApiUrl() {
+  const hostname = window.location.hostname;
+  
+  // Production mapping
+  if (hostname === 'app-cc-fe-wcus-001.azurewebsites.net') {
+    return 'https://app-cc-api-wcus-001.azurewebsites.net/api';
+  }
+  
+  // Development - use relative URL
+  return '/api';
+}
 
 // DOM Elements
 const dateInput = document.getElementById('dateInput');
