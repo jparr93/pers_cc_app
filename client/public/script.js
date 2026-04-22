@@ -1,5 +1,18 @@
-// Configuration - API_URL is injected by server.js
-const API_BASE_URL = window.API_URL || 'https://app-cc-api-wcus-001.azurewebsites.net/api';
+// Configuration - will be set dynamically
+let API_BASE_URL = 'https://app-cc-api-wcus-001.azurewebsites.net/api'; // fallback
+
+// Fetch config from frontend server
+async function loadConfig() {
+  try {
+    const response = await fetch('/config');
+    const config = await response.json();
+    API_BASE_URL = config.API_URL;
+    console.log('Config loaded. API URL:', API_BASE_URL);
+  } catch (error) {
+    console.error('Failed to load config, using default:', error);
+    console.log('API URL:', API_BASE_URL);
+  }
+}
 
 // DOM Elements
 const dateInput = document.getElementById('dateInput');
@@ -249,7 +262,8 @@ dateInput.addEventListener('change', async () => {
 });
 
 // Initialize
-initializeTheme();
-console.log('Frontend loaded. API URL:', API_BASE_URL);
-updateExhaustion();
-displayPairings(today);
+loadConfig().then(() => {
+  initializeTheme();
+  updateExhaustion();
+  displayPairings(today);
+});
