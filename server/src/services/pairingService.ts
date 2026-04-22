@@ -22,6 +22,8 @@ export class PairingService {
   }
 
   async generatePairings(participants: Participant[], runDate: string): Promise<Pair[]> {
+    console.log('Generating pairings for', participants.length, 'participants on', runDate);
+    
     // Shuffle participants
     const shuffled = [...participants].sort(() => Math.random() - 0.5);
     const pairs: Pair[] = [];
@@ -49,9 +51,12 @@ export class PairingService {
       }
     }
 
+    console.log('Created', pairs.length, 'new pairs');
+    
     // Store in Azure Table Storage
     await this.storePairings(pairs, runDate);
-
+    
+    console.log('Pairs stored successfully');
     return pairs;
   }
 
@@ -164,13 +169,15 @@ export class PairingService {
       
       if (this.tableClient) {
         try {
+          console.log('Storing pair', i, 'to Azure Table Storage');
           await this.tableClient.createEntity(entity);
         } catch (error) {
-          console.error('Error storing pair:', error);
+          console.error('Error storing pair to Azure:', error);
           // Fall back to mock storage
           this.storeMockEntity(entity);
         }
       } else {
+        console.log('Using mock storage for pair', i);
         this.storeMockEntity(entity);
       }
     }

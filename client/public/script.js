@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = process.env.API_URL || getApiUrl();
+const API_BASE_URL = getApiUrl();
 
 function getApiUrl() {
   const hostname = window.location.hostname;
@@ -65,6 +65,8 @@ async function generatePairings() {
   const date = dateInput.value;
   const csvFile = csvInput.files[0];
 
+  console.log('Generate clicked - Date:', date, 'File:', csvFile?.name);
+
   if (!date) {
     showNotification('Please select a date', 'warning');
     return;
@@ -83,23 +85,29 @@ async function generatePairings() {
     formData.append('file', csvFile);
     formData.append('runDate', date);
 
+    console.log('Calling API:', `${API_BASE_URL}/pairings/generate`);
     const response = await fetch(`${API_BASE_URL}/pairings/generate`, {
       method: 'POST',
       body: formData,
     });
 
+    console.log('API Response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('API Error:', errorText);
+      throw new Error(`API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Pairings generated:', data);
     showNotification(`Generated ${data.count} pairings`, 'success');
     await displayPairings(date);
     exportBtn.disabled = false;
     copyBtn.disabled = false;
   } catch (error) {
     console.error('Error generating pairings:', error);
-    showNotification('Error generating pairings: ' + error.message, 'error');
+    showNotification('Error: ' + error.message, 'error');
   } finally {
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Pairings';
@@ -254,5 +262,6 @@ dateInput.addEventListener('change', async () => {
 
 // Initialize
 initializeTheme();
+console.log('Frontend loaded. API URL:', API_BASE_URL);
 updateExhaustion();
 displayPairings(today);

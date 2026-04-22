@@ -51,30 +51,41 @@ app.get('/api/pairings', async (req: Request, res: Response) => {
 // Generate new pairings
 app.post('/api/pairings/generate', upload.single('file'), async (req: Request, res: Response) => {
   try {
+    console.log('Generate pairings request received');
+    
     if (!req.file) {
+      console.error('No file uploaded');
       res.status(400).json({ error: 'CSV file is required' });
       return;
     }
 
     const { runDate } = req.body;
     if (!runDate) {
+      console.error('No runDate provided');
       res.status(400).json({ error: 'runDate is required' });
       return;
     }
 
+    console.log('Processing file:', req.file.originalname, 'for date:', runDate);
+    
     const csvContent = req.file.buffer.toString('utf-8');
     const participants = await parseCsvString(csvContent);
 
+    console.log('Parsed participants:', participants.length);
+
     if (participants.length === 0) {
+      console.error('CSV file is empty');
       res.status(400).json({ error: 'CSV file is empty or invalid' });
       return;
     }
 
     const newPairings = await pairingService.generatePairings(participants, runDate);
+    console.log('Generated pairings:', newPairings.length);
+    
     res.json({ pairings: newPairings, count: newPairings.length });
   } catch (error) {
     console.error('Error generating pairings:', error);
-    res.status(500).json({ error: 'Failed to generate pairings' });
+    res.status(500).json({ error: 'Failed to generate pairings', details: (error as any).message });
   }
 });
 
