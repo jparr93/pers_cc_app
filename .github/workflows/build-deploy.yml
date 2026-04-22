@@ -99,6 +99,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      
+      - name: Install frontend dependencies
+        working-directory: ./client
+        run: npm install --production
+      
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -114,10 +123,11 @@ jobs:
           cp client/server.js fe-deploy/
           cp client/package.json fe-deploy/
           [ -f client/package-lock.json ] && cp client/package-lock.json fe-deploy/ || true
-          [ -f client/.deployment ] && cp client/.deployment fe-deploy/ || true
           [ -f client/web.config ] && cp client/web.config fe-deploy/ || true
           # Copy public files
           cp -r client/public fe-deploy/
+          # Copy node_modules
+          cp -r client/node_modules fe-deploy/
           # Zip everything
           cd fe-deploy
           zip -r ../frontend-app.zip . 
