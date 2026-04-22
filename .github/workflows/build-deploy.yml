@@ -64,6 +64,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -74,12 +79,17 @@ jobs:
         run: |
           cd ./deploy-api
           mkdir -p api-deploy
+          # Copy built files
           cp -r server/dist/* api-deploy/ 2>/dev/null || true
-          cp -r server/node_modules api-deploy/ 2>/dev/null || true
           cp server/package.json api-deploy/ 2>/dev/null || true
+          cp server/package-lock.json api-deploy/ 2>/dev/null || true
+          # Install dependencies in deployment folder
           cd api-deploy
-          zip -r ../api-app.zip . -x ".git/*" ".gitignore" "server/src/*" ".env*" "*.md" "client/*"
-          ls -lah ../api-app.zip
+          npm install --production
+          # Zip everything
+          zip -r ../api-app.zip . -x ".git/*" ".gitignore" "server/src/*" ".env*" "*.md" "client/*" "src/*"
+          cd ..
+          ls -lah api-app.zip
       
       - name: Deploy API to Azure Web App
         uses: azure/webapps-deploy@v2
@@ -104,10 +114,6 @@ jobs:
         with:
           node-version: 24.x
       
-      - name: Install frontend dependencies
-        working-directory: ./client
-        run: npm install --production
-      
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -126,10 +132,10 @@ jobs:
           [ -f client/web.config ] && cp client/web.config fe-deploy/ || true
           # Copy public files
           cp -r client/public fe-deploy/
-          # Copy node_modules
-          cp -r client/node_modules fe-deploy/
-          # Zip everything
+          # Install dependencies in deployment folder
           cd fe-deploy
+          npm install --production
+          # Zip everything
           zip -r ../frontend-app.zip . 
           cd ..
           ls -lah frontend-app.zip
