@@ -6,7 +6,7 @@ A modern web application for generating monthly user pairings (e.g., coffee chat
 
 - 📋 **CSV-based Participant Management** - Upload participant lists with names and departments
 - 🔀 **Smart Pairing Generation** - Avoid repeating the same pairs across months
-- 📊 **Exhaustion Tracking** - Monitor how many possible pair combinations have been used
+- 📊 **Exhaustion Tracking** - Monitor how many possible pair combinations have beemn used
 - 💾 **Azure Integration** - Store and retrieve pairings from Azure Table Storage
 - 📥 **Export Capabilities** - Download pairings as CSV or copy to clipboard
 - 🎨 **Modern UI** - Sleek, responsive design with dark mode support
