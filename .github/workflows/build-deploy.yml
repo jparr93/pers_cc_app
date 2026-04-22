@@ -79,14 +79,14 @@ jobs:
         run: |
           cd ./deploy-api
           mkdir -p api-deploy
-          # Copy built files
-          cp -r server/dist/* api-deploy/ 2>/dev/null || true
+          # Copy built files preserving dist folder structure
+          [ -d server/dist ] && cp -r server/dist api-deploy/ || true
           cp server/package.json api-deploy/ 2>/dev/null || true
           cp server/package-lock.json api-deploy/ 2>/dev/null || true
           # Install dependencies in deployment folder
           cd api-deploy
           npm install --production
-          # Zip everything
+          # Zip everything - include dist and node_modules
           zip -r ../api-app.zip . -x ".git/*" ".gitignore" "server/src/*" ".env*" "*.md" "client/*" "src/*"
           cd ..
           ls -lah api-app.zip
