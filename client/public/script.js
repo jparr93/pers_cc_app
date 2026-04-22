@@ -4,9 +4,12 @@ const API_BASE_URL = getApiUrl();
 function getApiUrl() {
   const hostname = window.location.hostname;
   
-  // Production mapping
-  if (hostname === 'app-cc-fe-wcus-001.azurewebsites.net') {
-    return 'https://app-cc-api-wcus-001.azurewebsites.net/api';
+  // Production - if on Azure, construct full API URL
+  if (hostname.includes('azurewebsites.net')) {
+    // Replace 'fe' with 'api' in the hostname
+    // Example: app-cc-fe-wcus-001-xxx.azurewebsites.net → app-cc-api-wcus-001-xxx.azurewebsites.net
+    const apiHostname = hostname.replace('-fe-', '-api-');
+    return `https://${apiHostname}/api`;
   }
   
   // Development - use relative URL
