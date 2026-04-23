@@ -1,13 +1,16 @@
 using Azure.Data.Tables;
 using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using PairingApp.Services;
 
 var builder = WebApplicationBuilder.CreateBuilder(args);
 
-// Configure port from environment variable or default to 3000
+// Configure port using environment variable
 var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var urls = $"http://0.0.0.0:{port}";
+builder.WebHost.UseUrls(urls);
 
 // Add services to the container
 builder.Services.AddControllers();
