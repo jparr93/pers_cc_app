@@ -11,32 +11,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     strategy:
       matrix:
+        dotnet-version: ['10.0.x']
         node-version: [24.x]
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       
-      - name: Install root dependencies
-        run: npm install
-      
-      - name: Install server dependencies
+      - name: Build server (.NET)
         working-directory: ./server
-        run: npm install
-      
-      - name: Build server
-        working-directory: ./server
-        run: npm run build
+        run: dotnet build PairingApp.csproj -c Release
       
       - name: Install client dependencies
         working-directory: ./client
@@ -56,53 +53,40 @@ jobs:
   deploy-api:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js 24.x
-        uses: actions/setup-node@v4
+      - name: Setup .NET 10.0.x
+        uses: actions/setup-dotnet@v4
         with:
-          node-version: 24.x
+          dotnet-version: '10.0.x'
       
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: ./deploy-api
+      - name: Publish API
+        working-directory: ./server
+        run: dotnet publish PairingApp.csproj -c Release -o ./publish
       
       - name: Create API deployment package
+        working-directory: ./server
         run: |
-          cd ./deploy-api
           mkdir -p api-deploy
-          # Copy built files preserving dist folder structure
-          [ -d server/dist ] && cp -r server/dist api-deploy/ || true
-          cp server/package.json api-deploy/ 2>/dev/null || true
-          cp server/package-lock.json api-deploy/ 2>/dev/null || true
-          # Install dependencies in deployment folder
+          cp -r publish/* api-deploy/
+          cp web.config api-deploy/ 2>/dev/null || true
           cd api-deploy
-          npm install --production
-          # Zip everything - include dist and node_modules
-          zip -r ../api-app.zip . -x ".git/*" ".gitignore" "server/src/*" ".env*" "*.md" "client/*" "src/*"
-          cd ..
-          ls -lah api-app.zip
+          zip -r ../api-app.zip . -x ".git/*" ".gitignore" "*.md"
       
       - name: Deploy API to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "app-cc-api-wcus-001"
+          app-name: "app-cc-api-be-wcus-001"
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_API }}
-          package: ./deploy-api/api-app.zip
+          package: ./server/api-app.zip
 
   deploy-frontend:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:

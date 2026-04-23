@@ -3,3 +3,17 @@ node_modules/
 dist/
 *.log
 .DS_Store
+
+# .NET specific
+bin/
+obj/
+*.dll
+*.exe
+*.so
+*.dylib
+*.user
+*.sln.docstates
+.vscode/
+*.code-workspace
+.idea/
+*.DotSettings
