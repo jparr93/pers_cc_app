@@ -4,6 +4,13 @@ using PairingApp.Services;
 
 var builder = WebApplicationBuilder.CreateBuilder(args);
 
+// Configure port from environment variable or default to 3000
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+builder.WebHost.ConfigureKestrel(serverOptions => 
+{
+    serverOptions.ListenAnyIP(int.Parse(port));
+});
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddCors(options =>
@@ -56,5 +63,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var port = builder.Configuration["PORT"] ?? "3000";
-app.Run($"http://0.0.0.0:{port}");
+app.Run();

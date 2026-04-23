@@ -51,12 +51,16 @@ jobs:
           retention-days: 7
 
   deploy-api:
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./
       
       - name: Setup .NET 10.0.x
         uses: actions/setup-dotnet@v4
@@ -84,12 +88,16 @@ jobs:
           package: ./server/api-app.zip
 
   deploy-frontend:
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./
       
       - name: Setup Node.js 24.x
         uses: actions/setup-node@v4
