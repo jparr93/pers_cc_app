@@ -18,14 +18,23 @@ jobs:
         node-version: [24.x]
     
     steps:
+      - name: Clear GitHub Actions cache
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete --all --confirm
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+      
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          clean: true
       
       - name: Verify Program.cs content
         working-directory: ./server
-        run: head -20 Program.cs
+        run: cat Program.cs
       
       - name: Setup .NET ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v4
@@ -36,6 +45,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      
+      - name: Show .NET version
+        run: dotnet --version
       
       - name: Build server (.NET)
         working-directory: ./server
