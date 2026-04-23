@@ -51,7 +51,6 @@ jobs:
           retention-days: 7
 
   deploy-api:
-    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
@@ -85,7 +84,6 @@ jobs:
           package: ./server/api-app.zip
 
   deploy-frontend:
-    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
