@@ -33,7 +33,10 @@ jobs:
       
       - name: Build server (.NET)
         working-directory: ./server
-        run: dotnet build PairingApp.csproj -c Release
+        run: |
+          dotnet clean PairingApp.csproj || true
+          dotnet restore PairingApp.csproj
+          dotnet build PairingApp.csproj -c Release --no-restore
       
       - name: Install client dependencies
         working-directory: ./client
