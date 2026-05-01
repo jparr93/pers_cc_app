@@ -21,6 +21,7 @@ const generateBtn = document.getElementById('generateBtn');
 const resetBtn = document.getElementById('resetBtn');
 const exportBtn = document.getElementById('exportBtn');
 const copyBtn = document.getElementById('copyBtn');
+const refreshExhaustionBtn = document.getElementById('refreshExhaustionBtn');
 const pairingsContainer = document.getElementById('pairingsContainer');
 const themeToggle = document.getElementById('themeToggle');
 const exhaustionBar = document.getElementById('exhaustionBar');
@@ -256,6 +257,10 @@ generateBtn.addEventListener('click', generatePairings);
 resetBtn.addEventListener('click', resetPairings);
 exportBtn.addEventListener('click', exportPairings);
 copyBtn.addEventListener('click', copyPairingsToClipboard);
+refreshExhaustionBtn.addEventListener('click', async () => {
+  await updateExhaustion();
+  showNotification('Exhaustion data refreshed', 'success');
+});
 
 dateInput.addEventListener('change', async () => {
   await displayPairings(dateInput.value);

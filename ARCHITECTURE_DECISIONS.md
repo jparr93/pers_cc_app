@@ -551,6 +551,99 @@ Refactor the backend to use **.NET 10** with **ASP.NET Core** framework, replaci
 | 009 | CSV Input Format for Participant Data | Accepted | 2026-04-23 |
 | 010 | Pairing Deduplication Strategy | Accepted | 2026-04-23 |
 | 011 | Refactor Backend to .NET 10 + ASP.NET Core | Accepted | 2026-04-23 |
+| 012 | Azure-Inspired Dark Mode Theme & Enhanced UI Controls | Accepted | 2026-05-01 |
+
+---
+
+## ADR-012: Azure-Inspired Dark Mode Theme & Enhanced UI Controls
+
+**Status:** Accepted  
+**Date:** 2026-05-01
+
+### Context
+
+The Pairing App initially used a purple/pink gradient theme with light backgrounds. Users requested:
+- Professional appearance consistent with enterprise tools (Azure portal)
+- Dark mode support for accessibility and reduced eye strain
+- Better visual hierarchy and cleaner aesthetics
+- Additional UI controls for exhaustion data refresh and pairing reset
+
+### Decision
+
+Implement **Azure-inspired dark mode theme** using color palette matching Azure portal design, with enhanced UI controls for better user interaction.
+
+**Theme Colors:**
+- Primary: `#0078d4` (Azure blue)
+- Primary Hover: `#106ebe` (Darker azure blue)
+- Secondary: `#50e6ff` (Cyan accent)
+- Dark Background: `#0e1419` (Near-black)
+- Border Dark: `#3f3f3f` (Medium gray)
+- Danger/Success: Using enterprise-standard colors
+
+**Enhanced Controls:**
+- **Refresh Exhaustion Button**: In exhaustion section for manual data refresh without page reload
+- **Reset All Pairings Button**: Already present, now styled consistently with new theme
+- Smooth transitions and reduced animations for professional appearance
+
+### Consequences
+
+**Positive:**
+- Aligns with Azure/Microsoft design language (familiar to enterprise users)
+- Dark mode reduces eye strain in low-light environments
+- Better visual hierarchy with simplified borders (left-accent cards)
+- Professional appearance increases user confidence in data accuracy
+- Quick exhaustion refresh without full page reload improves UX
+- Consistent button styling and hover states across all controls
+- Responsive design maintains usability on mobile devices
+
+**Negative:**
+- CSS maintenance slightly increased with dark mode variants
+- Azure color palette may feel less distinctive than previous gradient design
+- Users with specific accessibility needs may require additional customization
+- Theme implementation requires localStorage for persistence (minor complexity)
+
+### Theme Implementation
+
+**CSS Architecture:**
+- CSS custom properties (variables) for entire color scheme
+- `html.dark-mode` class toggle mechanism
+- Separate dark-mode overrides for each component
+- Mobile-responsive design with reduced animations
+- Smooth `background-color` and `color` transitions (0.3s)
+
+**Color Palette Mapping:**
+- Light mode: White backgrounds, dark text, light borders
+- Dark mode: Near-black backgrounds (#0e1419), light text, medium gray borders (#3f3f3f)
+- Accent colors consistent in both modes
+- Card styling: Left-accent borders (4px) instead of full borders for cleaner look
+
+**UI Controls:**
+- Button hierarchy: Primary (Azure blue), Secondary (gray), Danger (red)
+- Hover effects: Subtle lift (`translateY(-1px)`) and shadow, no dramatic transforms
+- Disabled state: 50% opacity consistently applied
+- Exhaustion section: Gradient background with semi-transparent button overlays
+
+### Alternatives Considered
+
+- **System Preference Detection**: Would auto-detect OS dark mode but limits user control
+- **Bootstrap/Tailwind CSS**: Risk of losing design distinctiveness and added dependencies
+- **CSS-in-JS Solution**: Overcomplicates simple styling for this application scale
+- **Maintain Original Theme**: Does not address user feedback or enterprise profile requirements
+
+### Accessibility & Usability
+
+- Dark mode uses sufficient contrast ratios for WCAG compliance
+- Focus states clearly visible on all interactive elements
+- Theme preference persisted in localStorage for user convenience
+- Responsive design maintains usability on all device sizes
+- Button affordances clear through color, shadow, and hover effects
+
+### Future Enhancement Possibilities
+
+- Theme customization per user account (if authentication added)
+- Additional theme variants (high-contrast mode for accessibility)
+- Animated theme transitions
+- Per-component theme overrides for special cases
 
 ---
 
